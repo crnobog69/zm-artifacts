@@ -27,11 +27,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 
@@ -44,8 +39,42 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      # Cache node_modules — keyed on bun.lockb
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ hashFiles('bun.lockb') }}
+          restore-keys: node-modules-
+
+      # Cache Gradle home (downloaded jars, wrapper, metadata)
+      - name: Cache Gradle home
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-home-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: gradle-home-
+
+      # Cache Gradle build outputs (incremental compilation)
+      - name: Cache Gradle build
+        uses: actions/cache@v4
+        with:
+          path: android/.gradle
+          key: gradle-build-${{ github.sha }}
+          restore-keys: gradle-build-
+
+      # Cache NDK and Android SDK packages installed at runtime
+      - name: Cache Android SDK packages
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/lib/android/sdk
+          key: android-sdk-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: android-sdk-
+
       - name: Install dependencies
-        run: bun install
+        run: bun install --frozen-lockfile
 
       - name: Setup EAS
         uses: expo/expo-github-action@v8
@@ -81,6 +110,7 @@ jobs:
           RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.configureondemand=true"
         run: |
           if [ -f app/release.keystore ]; then
             ./gradlew assembleRelease \
@@ -101,6 +131,7 @@ jobs:
           RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.configureondemand=true"
         run: |
           if [ -f app/release.keystore ]; then
             ./gradlew bundleRelease \
