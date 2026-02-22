@@ -22,7 +22,8 @@
         "backgroundColor": "#111214"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.zlikord.mobile"
+      "package": "com.zlikord.mobile",
+      "usesCleartextTraffic": true
     },
     "web": {
       "favicon": "./assets/favicon.png"
