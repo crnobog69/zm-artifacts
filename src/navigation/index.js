@@ -1,6 +1,7 @@
 import { NavigationContainer, DarkTheme as NavDark } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { Shield, MessageCircle, User } from 'lucide-react-native'
 import { useAuthStore } from '../stores/auth'
 import { colors } from '../theme'
 import LoginScreen from '../screens/LoginScreen'
@@ -92,17 +93,17 @@ function HomeTabs() {
       }}
     >
       <Tab.Screen
-        name="Servers"
+        name="Guilds"
         component={GuildStack}
         options={{
-          tabBarIcon: ({ color, size }) => <TabIcon name="server" color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Shield color={color} size={size - 4} />,
         }}
       />
       <Tab.Screen
         name="DMs"
         component={DMStack}
         options={{
-          tabBarIcon: ({ color, size }) => <TabIcon name="message" color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <MessageCircle color={color} size={size - 4} />,
         }}
       />
       <Tab.Screen
@@ -113,22 +114,11 @@ function HomeTabs() {
           headerStyle: { backgroundColor: colors.surface },
           headerTintColor: colors.onSurface,
           headerShadowVisible: false,
-          tabBarIcon: ({ color, size }) => <TabIcon name="account" color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <User color={color} size={size - 4} />,
         }}
       />
     </Tab.Navigator>
   )
-}
-
-// Simple text-based icon to avoid vector-icons native module issues
-function TabIcon({ name, color, size }) {
-  const icons = {
-    server: '\u2302',     // house
-    message: '\u2709',    // envelope
-    account: '\u263A',    // smiley
-  }
-  const { Text } = require('react-native')
-  return <Text style={{ color, fontSize: size - 4 }}>{icons[name] || '?'}</Text>
 }
 
 export default function Navigation() {

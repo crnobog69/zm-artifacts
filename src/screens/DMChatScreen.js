@@ -1,7 +1,8 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { View, FlatList, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native'
 import { Text, TextInput, Surface } from 'react-native-paper'
 import { useChatStore } from '../stores/chat'
+import { useAuthStore } from '../stores/auth'
 import { colors } from '../theme'
 import Avatar from '../components/Avatar'
 
@@ -13,6 +14,7 @@ export default function DMChatScreen({ route }) {
     hasMoreDMMessages,
     fetchDMMessages,
   } = useChatStore()
+  const me = useAuthStore((s) => s.me)
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
 
@@ -33,14 +35,24 @@ export default function DMChatScreen({ route }) {
     fetchDMMessages(activeDM.id, oldest.id)
   }
 
-  const memberMap = {}
-  for (const m of activeDM?.members || []) {
-    memberMap[m.id] = m
+  // Build user lookup from the DM's flat fields + current user
+  const userMap = {}
+  if (activeDM) {
+    if (activeDM.other_user_id) {
+      userMap[activeDM.other_user_id] = {
+        id: activeDM.other_user_id,
+        username: activeDM.other_username,
+        avatar_url: activeDM.other_avatar_url,
+      }
+    }
+    if (me) {
+      userMap[me.id] = me
+    }
   }
 
   const renderMessage = useCallback(
     ({ item }) => {
-      const author = memberMap[item.author_id] || {}
+      const author = userMap[item.author_id] || {}
       const time = formatTime(item.created_at)
       return (
         <View style={styles.msgRow}>
@@ -57,13 +69,13 @@ export default function DMChatScreen({ route }) {
         </View>
       )
     },
-    [activeDM],
+    [activeDM, me],
   )
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={90}
     >
       <FlatList

@@ -5,6 +5,7 @@ import { useChatStore } from '../stores/chat'
 import { useAuthStore } from '../stores/auth'
 import { colors } from '../theme'
 import Avatar from '../components/Avatar'
+import Logo from '../components/Logo'
 
 export default function GuildsScreen({ navigation }) {
   const { guilds, fetchGuilds, setActiveGuild, createGuild, fetchDMs, connectWS } = useChatStore()
@@ -57,13 +58,16 @@ export default function GuildsScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View>
-          <Text variant="headlineSmall" style={styles.headerTitle}>
-            Servers
-          </Text>
-          <Text variant="bodySmall" style={styles.headerSub}>
-            {me?.username ? `Logged in as ${me.username}` : ''}
-          </Text>
+        <View style={styles.headerLeft}>
+          <Logo size={28} />
+          <View>
+            <Text variant="headlineSmall" style={styles.headerTitle}>
+              Guilds
+            </Text>
+            <Text variant="bodySmall" style={styles.headerSub}>
+              {me?.username ? `Logged in as ${me.username}` : ''}
+            </Text>
+          </View>
         </View>
       </View>
 
@@ -73,7 +77,7 @@ export default function GuildsScreen({ navigation }) {
         renderItem={renderGuild}
         contentContainerStyle={styles.list}
         ListEmptyComponent={
-          <Text style={styles.empty}>No servers yet. Create one!</Text>
+          <Text style={styles.empty}>No guilds yet. Create one!</Text>
         }
       />
 
@@ -81,10 +85,10 @@ export default function GuildsScreen({ navigation }) {
 
       <Portal>
         <Dialog visible={dialogOpen} onDismiss={() => setDialogOpen(false)} style={styles.dialog}>
-          <Dialog.Title>Create Server</Dialog.Title>
+          <Dialog.Title>Create Guild</Dialog.Title>
           <Dialog.Content>
             <TextInput
-              label="Server name"
+              label="Guild name"
               value={newName}
               onChangeText={setNewName}
               mode="outlined"
@@ -116,6 +120,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 12,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   headerTitle: {
     color: colors.onSurface,

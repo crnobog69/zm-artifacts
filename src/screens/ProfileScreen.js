@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { View, StyleSheet, ScrollView } from 'react-native'
+import { View, StyleSheet, ScrollView, Image } from 'react-native'
 import { Text, Button, TextInput, Surface, Divider } from 'react-native-paper'
 import { useAuthStore } from '../stores/auth'
 import { api } from '../api/client'
@@ -30,8 +30,19 @@ export default function ProfileScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
       <Surface style={styles.card} elevation={1}>
+        {me?.profile_background_url ? (
+          <Image
+            source={{ uri: me.profile_background_url }}
+            style={styles.backgroundImage}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={styles.backgroundPlaceholder} />
+        )}
         <View style={styles.profileRow}>
-          <Avatar user={me} size={64} />
+          <View style={styles.avatarWrap}>
+            <Avatar user={me} size={64} />
+          </View>
           <View style={styles.profileInfo}>
             <Text variant="titleLarge" style={styles.username}>
               {me?.username}
@@ -109,16 +120,35 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 20,
-    padding: 20,
     backgroundColor: colors.surface,
+    overflow: 'hidden',
+  },
+  backgroundImage: {
+    width: '100%',
+    height: 120,
+  },
+  backgroundPlaceholder: {
+    width: '100%',
+    height: 60,
+    backgroundColor: colors.primary + '40',
   },
   profileRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    marginTop: -32,
+  },
+  avatarWrap: {
+    borderRadius: 36,
+    borderWidth: 3,
+    borderColor: colors.surface,
+    overflow: 'hidden',
   },
   profileInfo: {
     marginLeft: 16,
     flex: 1,
+    marginTop: 32,
   },
   username: {
     color: colors.onSurface,
@@ -133,10 +163,12 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: 8,
     letterSpacing: 0.3,
+    paddingHorizontal: 20,
   },
   input: {
     backgroundColor: colors.surfaceVariant,
     fontSize: 15,
+    marginHorizontal: 20,
   },
   inputOutline: {
     borderRadius: 14,
@@ -144,6 +176,8 @@ const styles = StyleSheet.create({
   },
   saveBtn: {
     marginTop: 16,
+    marginHorizontal: 20,
+    marginBottom: 20,
     borderRadius: 20,
   },
   divider: {

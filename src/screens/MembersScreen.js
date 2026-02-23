@@ -16,7 +16,10 @@ export default function MembersScreen({ navigation }) {
     try {
       const dm = await openDM(member.user_id || member.id)
       setActiveDM(dm)
-      navigation.navigate('DMChat', { dmName: member.username })
+      navigation.navigate('DMs', {
+        screen: 'DMChat',
+        params: { dmName: member.username },
+      })
     } catch {}
   }
 

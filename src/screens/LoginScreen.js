@@ -3,6 +3,7 @@ import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 're
 import { TextInput, Button, Text, SegmentedButtons, Surface } from 'react-native-paper'
 import { useAuthStore } from '../stores/auth'
 import { colors } from '../theme'
+import Logo from '../components/Logo'
 
 export default function LoginScreen() {
   const [mode, setMode] = useState('login')
@@ -24,7 +25,12 @@ export default function LoginScreen() {
         await register(serverUrl, email, username, password)
       }
     } catch (e) {
-      setError(e.message || 'Something went wrong')
+      const msg = e.message || 'Something went wrong'
+      if (msg === 'Network request failed') {
+        setError(`Cannot reach server at ${serverUrl}\n\nMake sure the server is running and reachable from this device. On Android, HTTP (non-HTTPS) connections may be blocked — try using https:// or rebuild the app with cleartext traffic enabled.`)
+      } else {
+        setError(msg)
+      }
     } finally {
       setLoading(false)
     }
@@ -37,9 +43,12 @@ export default function LoginScreen() {
     >
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <Surface style={styles.card} elevation={3}>
-          <Text variant="headlineMedium" style={styles.title}>
-            Zlikord
-          </Text>
+          <View style={styles.logoRow}>
+            <Logo size={40} />
+            <Text variant="headlineMedium" style={styles.title}>
+              Zlikord
+            </Text>
+          </View>
           <Text variant="bodyMedium" style={styles.subtitle}>
             {mode === 'login' ? 'Welcome back!' : 'Create an account'}
           </Text>
@@ -133,9 +142,15 @@ const styles = StyleSheet.create({
     padding: 28,
     backgroundColor: colors.surface,
   },
+  logoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    marginBottom: 4,
+  },
   title: {
     color: colors.onSurface,
-    textAlign: 'center',
     fontWeight: '700',
   },
   subtitle: {
